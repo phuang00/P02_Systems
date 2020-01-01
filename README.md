@@ -14,7 +14,19 @@ Two different terminal sessions will act as Player 1 and Player 2. Each player w
 * Piping
 * Signals
 ### Task Delegation
-
+* Setup
+  * Initializing shared memory, semaphores (Jenny)
+  * Displaying board/ships (Yifan)
+  * Take in terminal input to place ships (Jackie)
+* Gameplay
+  * Setting up turn-based gameplay using semaphores (Jackie)
+  * Displaying and updating both boards (Jenny)
+  * Take in terminal input for coordinates (Yifan)
+  * Signals to handle errors (all)
+* Help Menu (all)
+  * Everyone will update the help menu with instructions as project moves forward
 ### Data Structures
+
 ### Algorithms
+
 ## Timeline
