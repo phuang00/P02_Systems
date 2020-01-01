@@ -42,18 +42,19 @@ Two different terminal sessions will act as Player 1 and Player 2. Each player w
   * duplicate
 ## Timeline
 * Setup
-  * Set up shared memory and semaphores
-  * Design a struct for storing information about boards and ships
-  * Write methods to display board in terminal
-  * Allow for terminal input to place ships on board
-  * Implement signaling to allow for faulty inputs
-  * Update help menu to reflect instructions for setting up
+  * Set up shared memory and semaphores (1/7)
+  * Design a struct for storing information about boards and ships (1/7)
+  * Write methods to display board in terminal (1/7)
+  * Allow for terminal input to place ships on board (1/9)
+  * Implement signaling to allow for faulty inputs (1/9)
+  * Update help menu to reflect instructions for setting up (1/9)
 * Gameplay
-  * Set up turn-based playing
-  * Allow for terminal input for coordinates
-  * Set up piping between processes
-  * Write algorithm for faulty coordinates
-  * Write algorithm to check if ship has been hit
-  * Write methods to update and display boards
-  * Write algorithm to check if game is over
-  * Update help menu to reflect instructions for playing
+  * Set up turn-based playing (1/10)
+  * Allow for terminal input for coordinates (1/10)
+  * Set up piping between processes (1/12)
+  * Write algorithm for faulty coordinates (1/12)
+  * Write algorithm to check if ship has been hit (1/13)
+  * Write methods to update and display boards (1/15)
+  * Write algorithm to check if game is over (1/15)
+  * Update help menu to reflect instructions for playing (1/15)
+* Debugging and Testing (1/17)
