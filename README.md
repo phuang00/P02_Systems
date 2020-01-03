@@ -9,10 +9,13 @@ Two different terminal sessions will act as Player 1 and Player 2. Each player w
 ## Technical Design
 ### Topics Used
 * Shared memory
+  * Used to store the current state of both player's boards (as 2D array of chars)
+  * Also used to store the coordinates of each player's ships (as structs)
 * Semaphores
+  * Used to keep the turn-based system in place so players take turn guessing coordinates
 * Memory allocation
-* Piping
 * Signals
+  * Used to signal the end of the game. 
 ### Task Delegation
 * Setup
   * Initializing shared memory, semaphores (Jenny)
