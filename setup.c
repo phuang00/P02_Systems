@@ -32,6 +32,29 @@ void create_board(int key){
   }
 }
 
+struct ships{
+    char* s0_coordinates;
+    char* s1_coordinates;
+    char* s2_coordinates;
+    char* s3_coordinates;
+    char* s4_coordinates;
+};
+
+void display_initBoard(int key){
+    int shmd;
+    char *data;
+    shmd = shmget(key, BOARD_SIZE, IPC_CREAT | 0640);
+    if (shmd == -1){
+      printf("%s\n", strerror(errno));
+    }
+    data = shmat(shmd, 0, 0);
+    if (errno != 0){
+      printf("%s\n", strerror(errno));
+  } else{
+      printf("%s\n",data);
+  }
+}
+
 int main(int argc, char const *argv[]) {
   int semd;
   semd = semget(SEM_KEY, 1, IPC_CREAT | 0644);
@@ -46,7 +69,23 @@ int main(int argc, char const *argv[]) {
   printf("semaphore created\n");
   create_board(BOARD1_KEY);
   create_board(BOARD2_KEY);
-  printf("shared memory created\n");
+  printf("shared memory created\n\n");
+
+  //printing initial board for player 1
+  printf("PLAYER 1\n\n");
+  printf("My Board\n");
+  display_initBoard(BOARD1_KEY);
+  printf("Opponent Board\n");
+  display_initBoard(BOARD2_KEY);
+  printf("\n");
+
+  //printing initial board for player 2
+  printf("PLAYER 2\n\n");
+  printf("My Board\n");
+  display_initBoard(BOARD2_KEY);
+  printf("Opponent Board\n");
+  display_initBoard(BOARD1_KEY);
+  printf("\n");
 
   /* code */
   return 0;
