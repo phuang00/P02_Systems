@@ -68,7 +68,15 @@ void display_initBoard(int key){
     }
 }
 
-int process_coord(int boat, char * coord, int orientation){
+int process_coord(char * input){ //return boolean if coordinate is valid
+  if (strlen(input) >= 2){
+    char letter = input[0];
+    char number = input[1];
+    printf("letter: %c\n", letter);
+    printf("number: %c\n", number);
+    return 1;
+  }
+  //int boat, char * coord, int orientation
   return 0;
 }
 
@@ -104,6 +112,14 @@ int main(int argc, char const *argv[]) {
   display_initBoard(BOARD1_KEY);
   printf("\n");
 
+  int row;
+  char column, orient;
+  char input[20];
+  fgets(input, 20, stdin);
+  *strchr(input, '\n') = 0;
+  printf("INPUT: %s\n", input);
+  //sscanf(input, "%s %c", coord, &orient);
+  //printf("COORD: %s\nORIENT: %c\n", coord, orient);
   /*
   fgets
   - ask for ship number
