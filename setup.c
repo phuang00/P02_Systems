@@ -55,6 +55,10 @@ void display_initBoard(int key){
   }
 }
 
+int process_coord(int boat, char * coord, int orientation){
+  return 0;
+}
+
 int main(int argc, char const *argv[]) {
   int semd;
   semd = semget(SEM_KEY, 1, IPC_CREAT | 0644);
@@ -86,6 +90,13 @@ int main(int argc, char const *argv[]) {
   printf("Opponent Board\n");
   display_initBoard(BOARD1_KEY);
   printf("\n");
+
+  /*
+  fgets
+  - ask for ship number
+  - ask for coordinate
+  - ask for orientation (0-3 for right, down, left, up)
+  */
 
   /* code */
   return 0;
