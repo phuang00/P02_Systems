@@ -50,9 +50,22 @@ void display_initBoard(int key){
     data = shmat(shmd, 0, 0);
     if (errno != 0){
       printf("%s\n", strerror(errno));
-  } else{
-      printf("%s\n",data);
-  }
+    } else{
+      printf("    A B C D E F G H I J\n");
+      int i;
+      for (i = 0; i < 10; i++) {
+        if (i == 9) {
+          printf(" %d", i + 1);
+        } else {
+          printf("  %d", i + 1);
+        }
+        int j;
+        for (j = 0; j < 11; j++) {
+          printf(" %c", *(data + i * 11 + j));
+        }
+      }
+      //printf("%s\n",data);
+    }
 }
 
 int process_coord(int boat, char * coord, int orientation){
