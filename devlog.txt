@@ -1,8 +1,11 @@
-peihuaH -- 2020-01-
-ENTRY PLACEHOLDER
+peihuaH -- 2020-01-06 22:30
+created semaphore and the shared memory segments for the two boards
 
-yifanW -- 2020-01-
-ENTRY PLACEHOLDER
+yifanW -- 2020-01-07
+created ships struct and added function to display boards
+
+peihuaH -- 2020-01-07 22:20
+added coordinate system for when board is being displayed
 
 jackieL -- 2020-01-08 08:04
 started working on function to add coordinates to board
