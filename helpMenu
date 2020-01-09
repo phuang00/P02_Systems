@@ -1,0 +1,6 @@
+Instructions to set up a Battleship game:
+
+    1. Run setip.c to create shared memory and semaphore.
+    2. Both your and the opponent's boards initially should be empty.
+    3. Input coordinates to place ships on your own board.
+    4. Now, you should be able to see your own ships under 'My Board'.
