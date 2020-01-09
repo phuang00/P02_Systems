@@ -40,7 +40,7 @@ struct ships{
     char* s4_coordinates;
 };
 
-void display_initBoard(int key){
+void display_board(int key){
     int shmd;
     char *data;
     shmd = shmget(key, BOARD_SIZE, IPC_CREAT | 0640);
@@ -99,17 +99,17 @@ int main(int argc, char const *argv[]) {
   //printing initial board for player 1
   printf("PLAYER 1\n\n");
   printf("My Board\n");
-  display_initBoard(BOARD1_KEY);
+  display_board(BOARD1_KEY);
   printf("Opponent Board\n");
-  display_initBoard(BOARD2_KEY);
+  display_board(BOARD2_KEY);
   printf("\n");
 
   //printing initial board for player 2
   printf("PLAYER 2\n\n");
   printf("My Board\n");
-  display_initBoard(BOARD2_KEY);
+  display_board(BOARD2_KEY);
   printf("Opponent Board\n");
-  display_initBoard(BOARD1_KEY);
+  display_board(BOARD1_KEY);
   printf("\n");
 
   int row;
