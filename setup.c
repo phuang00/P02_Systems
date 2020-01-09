@@ -33,33 +33,6 @@ void create_board(int key){
   }
 }
 
-struct ships{
-    char s0_coordinates[3];
-    char s1_coordinates[6];
-    char s2_coordinates[9];
-    char s3_coordinates[12];
-    char s4_coordinates[15];
-};
-
-void create_ships(int key){
-  int shmd;
-  struct ships *data;
-  shmd = shmget(key, sizeof(struct ships), IPC_CREAT | 0644);
-  if (shmd == -1){
-    printf("%s\n", strerror(errno));
-  }
-  data = shmat(shmd, 0, 0);
-  if (errno != 0){
-    printf("%s\n", strerror(errno));
-  }
-  else {
-    shmdt(data);
-    if (errno != 0){
-      printf("%s\n", strerror(errno));
-    }
-  }
-}
-
 void display_board(int key){
     int shmd;
     char *data;
@@ -94,7 +67,7 @@ int place_boat(int row, char column, char orient){
   if (row < 0 || row > 10) return 0;
   if (column < 97 || column > 123) return 0;
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
-  
+
   return 1;
 }
 
@@ -112,8 +85,6 @@ int main(int argc, char const *argv[]) {
   printf("semaphore created\n");
   create_board(BOARD1_KEY);
   create_board(BOARD2_KEY);
-  create_ships(SHIPS1_KEY);
-  create_ships(SHIPS2_KEY);
   printf("shared memory created\n\n");
 
   //printing initial board for player 1
