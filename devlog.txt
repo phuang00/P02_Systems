@@ -10,5 +10,5 @@ added coordinate system for when board is being displayed
 jackieL -- 2020-01-08 08:04
 started working on function to add coordinates to board
 
-yifanW -- 2020-01-09 10:54
+yifanW -- 2020-01-09 12:54
 Created help menu for setting up the game
