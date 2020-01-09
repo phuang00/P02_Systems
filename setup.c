@@ -1,4 +1,5 @@
 #include "battleship.h"
+#include <ctype.h>
 
 // union semun {
 //   int              val;    /* Value for SETVAL */
@@ -68,16 +69,14 @@ void display_board(int key){
     }
 }
 
-int process_coord(char * input){ //return boolean if coordinate is valid
-  if (strlen(input) >= 2){
-    char letter = input[0];
-    char number = input[1];
-    printf("letter: %c\n", letter);
-    printf("number: %c\n", number);
-    return 1;
-  }
-  //int boat, char * coord, int orientation
-  return 0;
+int place_boat(int row, char column, char orient){
+  column = tolower(column);
+  orient = tolower(orient);
+  if (row < 0 || row > 10) return 0;
+  if (column < 97 || column > 123) return 0;
+  if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
+  
+  return 1;
 }
 
 int main(int argc, char const *argv[]) {
@@ -115,18 +114,19 @@ int main(int argc, char const *argv[]) {
   int row;
   char column, orient;
   char input[20];
-  fgets(input, 20, stdin);
-  *strchr(input, '\n') = 0;
-  printf("INPUT: %s\n", input);
-  //sscanf(input, "%s %c", coord, &orient);
-  //printf("COORD: %s\nORIENT: %c\n", coord, orient);
-  /*
-  fgets
-  - ask for ship number
-  - ask for coordinate
-  - ask for orientation (0-3 for right, down, left, up)
-  */
-
-  /* code */
+  int i;
+  for (i = 0; i < 5; i++){
+    printf("Now placing Boat %d\n", i);
+    printf("Please input a row (int), a column (char), and an orientation (l, r, u, d) separated by spaces:\n");
+    fgets(input, 20, stdin);
+    *strchr(input, '\n') = 0;
+    sscanf(input, "%d %c %c", &row, &column, &orient);
+    while (!place_boat(row, column, orient)){
+      printf("The values you inputted were not valid. Please try again:\n");
+      fgets(input, 20, stdin);
+      *strchr(input, '\n') = 0;
+      sscanf(input, "%d %c %c", &row, &column, &orient);
+    }
+  }
   return 0;
 }
