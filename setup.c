@@ -191,7 +191,7 @@ int main(int argc, char const *argv[]) {
       if (semd == -1){
         printf("%s\n", strerror(errno));
       }
-      printf("Trying to get in...\n");
+      printf("Waiting to access board 1...\n");
       struct sembuf sb;
       sb.sem_num = 0;
       sb.sem_op = -1;
@@ -222,7 +222,7 @@ int main(int argc, char const *argv[]) {
       if (semd == -1){
         printf("%s\n", strerror(errno));
       }
-      printf("Trying to get in...\n");
+      printf("Waiting to access board 2...\n");
       struct sembuf sb;
       sb.sem_num = 0;
       sb.sem_op = -1;
