@@ -5,6 +5,8 @@
 #include <sys/ipc.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define BOARD1_KEY 10282
 #define BOARD2_KEY 12345
