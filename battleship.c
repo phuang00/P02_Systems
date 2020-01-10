@@ -5,7 +5,7 @@ struct sembuf sb;
 
 static void sighandler(int signo){
   printf("Exiting game...\n");
-  int game_semd = semget(GSEM_KEY, 1, 0);
+  game_semd = semget(GSEM_KEY, 1, 0);
   if (game_semd == -1){
     printf("wrong sem: %s\n", strerror(errno));
   }
