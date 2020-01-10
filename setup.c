@@ -67,7 +67,6 @@ int place_boat(int boat, char row, int c, char orient, int key){
   if (c < 1 || c > 11) return 0;
   if (row < 97 || row > 123) return 0;
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
-<<<<<<< HEAD
   int r = row % 97;
   c -= 1;
   //access shared memory for board
@@ -83,9 +82,6 @@ int place_boat(int boat, char row, int c, char orient, int key){
   int empty = (*(data + c * 11 + r) == '-');
   if (!empty) return 0;
   *(data + c * 11 + r) = 'O'; //place boat down
-=======
-
->>>>>>> 1d1ba34a3289bac7cbefe2a1bd9eb3617b9f68b7
   return 1;
 }
 
@@ -127,15 +123,15 @@ int main(int argc, char const *argv[]) {
   int i;
   for (i = 0; i < 5; i++){
     printf("Now placing Boat %d\n", i + 1);
-    printf("Please input a row (char), a column (int), and an orientation (l, r, u, d) separated by spaces:\n");
+    printf("Please input a row (int), a column (char), and an orientation (l, r, u, d) separated by spaces:\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
-    sscanf(input, "%c %d %c", &row, &column, &orient);
+    sscanf(input, "%d %c %c", &row, &column, &orient);
     while (!place_boat(i + 1, row, column, orient, BOARD1_KEY)){
       printf("The values you inputted were not valid. Please try again:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
-      sscanf(input, "%c %d %c", &row, &column, &orient);
+      sscanf(input, "%d %c %c", &row, &column, &orient);
     }
     display_board(BOARD1_KEY);
   }
