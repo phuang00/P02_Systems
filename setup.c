@@ -199,7 +199,7 @@ int main(int argc, char const *argv[]) {
       if (errno != 0){
         printf("%s\n", strerror(errno));
       }
-
+      printf("Access granted!\n");
       if (board_filled(BOARD1_KEY)){
         printf("This board has already been filled out.\n");
       }
@@ -230,6 +230,7 @@ int main(int argc, char const *argv[]) {
       if (errno != 0){
         printf("%s\n", strerror(errno));
       }
+      printf("Access granted!\n");
       if (board_filled(BOARD2_KEY)){
         printf("This board has already been filled out.\n");
       }
