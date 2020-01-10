@@ -14,7 +14,11 @@ void create_sem(int key){
   semd = semget(key, 1, IPC_CREAT | 0644);
   if (semd != -1){
     union semun us;
-    us.val = 1;
+    if (key == GSEM_KEY){
+      us.val = 2;
+    } else{
+      us.val = 1;
+    }
     semctl(semd, 0, SETVAL, us);
   }
   else {
