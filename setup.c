@@ -88,9 +88,20 @@ int place_boat(int boat, int row, char column, char orient, int key){
     printf("%s\n", strerror(errno));
   }
   //add coordinates
-  int empty = (*(data + row * 11 + coll) == '-');
-  if (!empty) return 0;
-  *(data + row * 11 + coll) = 'O'; //place boat down
+  int i;
+  for (i = 0; i < boat; i++){
+    if (i != 0){
+      if (orient == 'l') coll -= 1;
+      else if (orient == 'r') coll += 1;
+      else if (orient == 'u') row -= 1;
+      else row += 1;
+      if (!check_coord(row, column)) return 0;
+    }
+    printf("ROW: %d\n COLL: %d\n", row, coll);
+    int empty = (*(data + row * 11 + coll) == '-');
+    if (!empty) return 0;
+    *(data + row * 11 + coll) = 'O'; //place boat down
+  }
   shmdt(data);
   return 1;
 }
@@ -128,8 +139,8 @@ int main(int argc, char const *argv[]) {
   printf("\n");
 
   int row;
-  char column, orient;
   char input[20];
+  char column, orient;
   int i;
   for (i = 1; i <= 5; i++){
     printf("Now placing Boat %d\n", i);
@@ -145,6 +156,6 @@ int main(int argc, char const *argv[]) {
     }
     display_board(BOARD1_KEY);
   }
-  printf("FINISHED PLACING BOATS\n");
+  printf("Boats have been placed!\n");
   return 0;
 }
