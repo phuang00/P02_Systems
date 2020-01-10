@@ -1,5 +1,4 @@
 #include "battleship.h"
-#include <ctype.h>
 
 // union semun {
 //   int              val;    /* Value for SETVAL */
@@ -182,8 +181,6 @@ int main(int argc, char const *argv[]) {
   create_sem(SEM2_KEY);
   create_sem(GSEM_KEY);
   if (argc > 1){
-    //printf("semaphore created\n");
-
     //player 1
     if (!strcmp(argv[1], "1")){
       //check semaphore availability
