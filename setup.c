@@ -10,7 +10,7 @@
 
 void create_sem(int key){
   int semd;
-  semd = semget(key, 1, IPC_CREAT | 0644);
+  semd = semget(key, 1, IPC_CREAT | IPC_EXCL | 0644);
   if (semd != -1){
     union semun us;
     if (key == GSEM_KEY){
@@ -19,9 +19,6 @@ void create_sem(int key){
       us.val = 1;
     }
     semctl(semd, 0, SETVAL, us);
-  }
-  else {
-    printf("%s\n", strerror(errno));
   }
 }
 
@@ -54,12 +51,13 @@ int board_filled(int key){ //check if board is filled or not
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
     errno = 0;
-    return 1;
+    return 0;
   }
   char * data = shmat(shmd, 0, 0);
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
+  printf("so life: \n%s\n", data);
   int one = 0;
   int two = 0;
   int three = 0;
@@ -184,11 +182,11 @@ int main(int argc, char const *argv[]) {
     //player 1
     if (!strcmp(argv[1], "1")){
       //check semaphore availability
+      printf("Waiting to access board 1...\n");
       semd = semget(SEM1_KEY, 1, 0);
       if (semd == -1){
         printf("%s\n", strerror(errno));
       }
-      printf("Waiting to access board 1...\n");
       struct sembuf sb;
       sb.sem_num = 0;
       sb.sem_op = -1;
@@ -205,6 +203,7 @@ int main(int argc, char const *argv[]) {
         boat_input(BOARD1_KEY);
       }
       //done with semaphore
+      printf("done\n");
       sb.sem_op = 1;
       semop(semd, &sb, 1);
       if (errno != 0){
