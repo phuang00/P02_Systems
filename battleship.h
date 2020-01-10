@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define BOARD1_KEY 10282
 #define BOARD2_KEY 12345
