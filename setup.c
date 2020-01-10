@@ -33,6 +33,29 @@ void create_board(int key){
   }
 }
 
+int check_board(int key){ //check if board is filled or not
+  //access shared memory for board
+  int shmd = shmget(key, BOARD_SIZE, 0);
+  if (shmd == -1){
+    printf("%s\n", strerror(errno));
+  }
+  char * data = shmat(shmd, 0, 0);
+  if (errno != 0){
+    printf("%s\n", strerror(errno));
+  }
+  int one, two, three, four, five = 0;
+  int i;
+  for (i = 0; i < strlen(data); i++){
+    if (data[i] == '1') one++;
+    if (data[i] == '2') two++;
+    if (data[i] == '3') three++;
+    if (data[i] == '4') four++;
+    if (data[i] == '5') five++;
+  }
+  if (one == 1 && two == 2 && three == 3 & four == 4 && five == 5) return 1;
+  return 0;
+}
+
 void display_board(int key){
     int shmd;
     char *data;
@@ -101,7 +124,7 @@ int place_boat(int boat, int row, char column, char orient, int key){
     }
     int empty = (*(copy + row * 11 + coll) == '-');
     if (!empty) return 0;
-    *(copy + row * 11 + coll) = 'O'; //place boat down
+    *(copy + row * 11 + coll) = boat + '0'; //place boat down
   }
   data = strcpy(data, copy);
   shmdt(data);
@@ -120,8 +143,12 @@ int main(int argc, char const *argv[]) {
     printf("%s\n", strerror(errno));
   }
   printf("semaphore created\n");
-  create_board(BOARD1_KEY);
-  create_board(BOARD2_KEY);
+  if (check_board(BOARD1_KEY)){
+    create_board(BOARD1_KEY);
+  }
+  if (check_board(BOARD2_KEY)){
+    create_board(BOARD2_KEY);
+  }
   printf("shared memory created\n\n");
 
   //printing initial board for player 1
@@ -145,7 +172,7 @@ int main(int argc, char const *argv[]) {
   char column, orient;
   int i;
   for (i = 1; i <= 5; i++){
-    printf("Now placing Boat %d\n", i);
+    printf("\nNow placing Boat %d...\n", i);
     printf("Please input a row (int), a column (char), and an orientation (l, r, u, d) separated by spaces:\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
