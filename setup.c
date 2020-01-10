@@ -23,28 +23,24 @@ void create_sem(int key){
 }
 
 void create_board(int key){
-  //printf("errno wass %d\n", errno);
   int shmd;
   char *data;
   shmd = shmget(key, BOARD_SIZE, IPC_CREAT | 0644);
   if (shmd == -1){
     printf("%s\n", strerror(errno));
-    //printf("life sucks\n");
   }
   data = shmat(shmd, 0, 0);
   if (errno != 0){
-    printf("so you? %s\n", strerror(errno));
-    //printf("i agree\n");
+    printf("%s\n", strerror(errno));
   }
   else {
     int i;
     for (i = 0; i < 10; i++){
       strcpy(data + (11 * i), "----------\n");
     }
-    //printf("%s\n", data);
     shmdt(data);
     if (errno != 0){
-      printf("screw life: %s\n", strerror(errno));
+      printf("%s\n", strerror(errno));
     }
   }
   printf("shared memory created\n\n");
@@ -54,13 +50,11 @@ int check_board(int key){ //check if board is filled or not
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    //printf("we good\n");
     errno = 0;
     return 1;
   }
   char * data = shmat(shmd, 0, 0);
   if (errno != 0){
-    //printf("ahhh\n");
     printf("%s\n", strerror(errno));
   }
   int one, two, three, four, five = 0;
@@ -115,28 +109,20 @@ int check_coord(int row, char column){ //check if coordinates are out of bounds
 int place_boat(int boat, int row, char column, char orient, int key){
   //check coordinates
   column = tolower(column);
-  //printf("is it you?\n");
   if (!check_coord(row, column)) return 0;
-  //printf("so it's not you?\n");
   int coll = column % 97;
   row -= 1;
   //check orientation
   orient = tolower(orient);
-  //printf("well well\n");
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
-  //printf("you?\n");
   if (shmd == -1){
-    //printf("so it's you?\n");
     printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
-  //printf("%s\n", data);
-  //printf("hmm is you?\n");
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
-  //printf("so you?\n");
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
