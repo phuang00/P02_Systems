@@ -67,7 +67,6 @@ int place_boat(int boat, char row, int c, char orient, int key){
   if (c < 1 || c > 11) return 0;
   if (row < 97 || row > 123) return 0;
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
-<<<<<<< HEAD
   int r = row % 97;
   c -= 1;
   //access shared memory for board
@@ -83,9 +82,6 @@ int place_boat(int boat, char row, int c, char orient, int key){
   int empty = (*(data + c * 11 + r) == '-');
   if (!empty) return 0;
   *(data + c * 11 + r) = 'O'; //place boat down
-=======
-
->>>>>>> 1d1ba34a3289bac7cbefe2a1bd9eb3617b9f68b7
   return 1;
 }
 
