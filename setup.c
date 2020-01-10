@@ -59,16 +59,25 @@ void display_board(int key){
       }
       //printf("%s\n",data);
     }
+    shmdt(data);
 }
 
-int place_boat(int boat, char row, int c, char orient, int key){
-  row = tolower(row);
+int check_coord(int row, char column){ //check if coordinates are out of bounds
+  column = tolower(column);
+  if (row < 1 || row > 11) return 0;
+  if (column < 97 || column > 123) return 0;
+  return 1;
+}
+
+int place_boat(int boat, int row, char column, char orient, int key){
+  //check coordinates
+  column = tolower(column);
+  if (!check_coord(row, column)) return 0;
+  int coll = column % 97;
+  row -= 1;
+  //check orientation
   orient = tolower(orient);
-  if (c < 1 || c > 11) return 0;
-  if (row < 97 || row > 123) return 0;
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
-  int r = row % 97;
-  c -= 1;
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
@@ -79,9 +88,10 @@ int place_boat(int boat, char row, int c, char orient, int key){
     printf("%s\n", strerror(errno));
   }
   //add coordinates
-  int empty = (*(data + c * 11 + r) == '-');
+  int empty = (*(data + row * 11 + coll) == '-');
   if (!empty) return 0;
-  *(data + c * 11 + r) = 'O'; //place boat down
+  *(data + row * 11 + coll) = 'O'; //place boat down
+  shmdt(data);
   return 1;
 }
 
@@ -117,17 +127,17 @@ int main(int argc, char const *argv[]) {
   display_board(BOARD1_KEY);
   printf("\n");
 
-  int column;
-  char row, orient;
+  int row;
+  char column, orient;
   char input[20];
   int i;
-  for (i = 0; i < 5; i++){
-    printf("Now placing Boat %d\n", i + 1);
+  for (i = 1; i <= 5; i++){
+    printf("Now placing Boat %d\n", i);
     printf("Please input a row (int), a column (char), and an orientation (l, r, u, d) separated by spaces:\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
     sscanf(input, "%d %c %c", &row, &column, &orient);
-    while (!place_boat(i + 1, row, column, orient, BOARD1_KEY)){
+    while (!place_boat(i, row, column, orient, BOARD1_KEY)){
       printf("The values you inputted were not valid. Please try again:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
@@ -135,5 +145,6 @@ int main(int argc, char const *argv[]) {
     }
     display_board(BOARD1_KEY);
   }
+  printf("FINISHED PLACING BOATS\n");
   return 0;
 }
