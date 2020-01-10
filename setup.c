@@ -84,6 +84,8 @@ int place_boat(int boat, int row, char column, char orient, int key){
     printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
+  char * copy; //copy of data
+  strcpy(copy, data);
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
@@ -97,11 +99,11 @@ int place_boat(int boat, int row, char column, char orient, int key){
       else row += 1;
       if (!check_coord(row, column)) return 0;
     }
-    printf("ROW: %d\n COLL: %d\n", row, coll);
-    int empty = (*(data + row * 11 + coll) == '-');
+    int empty = (*(copy + row * 11 + coll) == '-');
     if (!empty) return 0;
-    *(data + row * 11 + coll) = 'O'; //place boat down
+    *(copy + row * 11 + coll) = 'O'; //place boat down
   }
+  data = strcpy(data, copy);
   shmdt(data);
   return 1;
 }
