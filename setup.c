@@ -9,16 +9,32 @@
 //                               (Linux-specific) */
 // };
 
+void create_sem(int key){
+  int semd;
+  semd = semget(key, 1, IPC_CREAT | 0644);
+  if (semd != -1){
+    union semun us;
+    us.val = 1;
+    semctl(semd, 0, SETVAL, us);
+  }
+  else {
+    printf("%s\n", strerror(errno));
+  }
+}
+
 void create_board(int key){
+  //printf("errno wass %d\n", errno);
   int shmd;
   char *data;
   shmd = shmget(key, BOARD_SIZE, IPC_CREAT | 0644);
   if (shmd == -1){
     printf("%s\n", strerror(errno));
+    //printf("life sucks\n");
   }
   data = shmat(shmd, 0, 0);
   if (errno != 0){
-    printf("%s\n", strerror(errno));
+    printf("so you? %s\n", strerror(errno));
+    //printf("i agree\n");
   }
   else {
     int i;
@@ -28,19 +44,23 @@ void create_board(int key){
     //printf("%s\n", data);
     shmdt(data);
     if (errno != 0){
-      printf("%s\n", strerror(errno));
+      printf("screw life: %s\n", strerror(errno));
     }
   }
+  printf("shared memory created\n\n");
 }
 
 int check_board(int key){ //check if board is filled or not
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    printf("%s\n", strerror(errno));
+    //printf("we good\n");
+    errno = 0;
+    return 1;
   }
   char * data = shmat(shmd, 0, 0);
   if (errno != 0){
+    //printf("ahhh\n");
     printf("%s\n", strerror(errno));
   }
   int one, two, three, four, five = 0;
@@ -59,7 +79,7 @@ int check_board(int key){ //check if board is filled or not
 void display_board(int key){
     int shmd;
     char *data;
-    shmd = shmget(key, BOARD_SIZE, IPC_CREAT | 0640);
+    shmd = shmget(key, BOARD_SIZE, 0);
     if (shmd == -1){
       printf("%s\n", strerror(errno));
     }
@@ -95,20 +115,28 @@ int check_coord(int row, char column){ //check if coordinates are out of bounds
 int place_boat(int boat, int row, char column, char orient, int key){
   //check coordinates
   column = tolower(column);
+  //printf("is it you?\n");
   if (!check_coord(row, column)) return 0;
+  //printf("so it's not you?\n");
   int coll = column % 97;
   row -= 1;
   //check orientation
   orient = tolower(orient);
+  //printf("well well\n");
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
+  //printf("you?\n");
   if (shmd == -1){
+    //printf("so it's you?\n");
     printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
-  char * copy; //copy of data
+  //printf("%s\n", data);
+  //printf("hmm is you?\n");
+  char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
+  //printf("so you?\n");
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
@@ -132,16 +160,9 @@ int place_boat(int boat, int row, char column, char orient, int key){
 }
 
 int main(int argc, char const *argv[]) {
-  int semd;
-  semd = semget(SEM_KEY, 1, IPC_CREAT | 0644);
-  if (semd != -1){
-    union semun us;
-    us.val = 1;
-    semctl(semd, 0, SETVAL, us);
-  }
-  else {
-    printf("%s\n", strerror(errno));
-  }
+  create_sem(SEM1_KEY);
+  create_sem(SEM2_KEY);
+  create_sem(GSEM_KEY);
   printf("semaphore created\n");
   if (check_board(BOARD1_KEY)){
     create_board(BOARD1_KEY);
@@ -149,7 +170,6 @@ int main(int argc, char const *argv[]) {
   if (check_board(BOARD2_KEY)){
     create_board(BOARD2_KEY);
   }
-  printf("shared memory created\n\n");
 
   //printing initial board for player 1
   printf("PLAYER 1\n\n");
