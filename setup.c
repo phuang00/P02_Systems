@@ -1,4 +1,7 @@
 #include "battleship.h"
+int main_semd;
+struct sembuf sb;
+int key;
 
 // union semun {
 //   int              val;    /* Value for SETVAL */
@@ -8,16 +11,31 @@
 //                               (Linux-specific) */
 // };
 
+static void sighandler(int signo){
+  printf("Exiting game...\n");
+  main_semd = semget(key, 1, 0);
+  if (main_semd == -1){
+    printf("wrong sem: %s\n", strerror(errno));
+  }
+  sb.sem_op = 1;
+  semop(main_semd, &sb, 1);
+  if (errno != 0){
+    printf("this: %s\n", strerror(errno));
+  }
+  exit(1);
+}
+
 void create_sem(int key){
   int semd;
-  semd = semget(key, 1, IPC_CREAT | 0644);
+  semd = semget(key, 1, IPC_CREAT | IPC_EXCL | 0644);
   if (semd != -1){
     union semun us;
-    us.val = 1;
+    if (key == GSEM_KEY){
+      us.val = 2;
+    } else{
+      us.val = 1;
+    }
     semctl(semd, 0, SETVAL, us);
-  }
-  else {
-    printf("%s\n", strerror(errno));
   }
 }
 
@@ -42,15 +60,15 @@ void create_board(int key){
       printf("%s\n", strerror(errno));
     }
   }
-  printf("shared memory created\n\n");
+  //printf("shared memory created\n\n");
 }
 
-int check_board(int key){ //check if board is filled or not
+int board_filled(int key){ //check if board is filled or not
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
     errno = 0;
-    return 1;
+    return 0;
   }
   char * data = shmat(shmd, 0, 0);
   if (errno != 0){
@@ -137,52 +155,103 @@ int place_boat(int boat, int row, char column, char orient, int key){
   return 1;
 }
 
-int main(int argc, char const *argv[]) {
-  create_sem(SEM1_KEY);
-  create_sem(SEM2_KEY);
-  create_sem(GSEM_KEY);
-  printf("semaphore created\n");
-  if (check_board(BOARD1_KEY)){
-    create_board(BOARD1_KEY);
-  }
-  if (check_board(BOARD2_KEY)){
-    create_board(BOARD2_KEY);
-  }
-
-  //printing initial board for player 1
-  printf("PLAYER 1\n\n");
-  printf("My Board\n");
-  display_board(BOARD1_KEY);
-  printf("Opponent Board\n");
-  display_board(BOARD2_KEY);
-  printf("\n");
-
-  //printing initial board for player 2
-  printf("PLAYER 2\n\n");
-  printf("My Board\n");
-  display_board(BOARD2_KEY);
-  printf("Opponent Board\n");
-  display_board(BOARD1_KEY);
-  printf("\n");
-
+void boat_input(key){
   int row;
   char input[20];
   char column, orient;
   int i;
   for (i = 1; i <= 5; i++){
     printf("\nNow placing Boat %d...\n", i);
-    printf("Please input a row (int), a column (char), and an orientation (l, r, u, d) separated by spaces:\n");
+    printf("Please input a column (char), a row (int), and an orientation (l, r, u, d) separated by spaces:\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
-    sscanf(input, "%d %c %c", &row, &column, &orient);
-    while (!place_boat(i, row, column, orient, BOARD1_KEY)){
+    sscanf(input, "%c %d %c", &column, &row, &orient);
+    while (!place_boat(i, row, column, orient, key)){
       printf("The values you inputted were not valid. Please try again:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
-      sscanf(input, "%d %c %c", &row, &column, &orient);
+      sscanf(input, "%c %d %c", &column, &row, &orient);
     }
-    display_board(BOARD1_KEY);
+    display_board(key);
   }
   printf("Boats have been placed!\n");
+}
+
+int main(int argc, char const *argv[]) {
+  signal(SIGINT, sighandler);
+  //create semaphores
+  create_sem(SEM1_KEY);
+  create_sem(SEM2_KEY);
+  create_sem(GSEM_KEY);
+  if (argc > 1){
+    //player 1
+    if (!strcmp(argv[1], "1")){
+      //check semaphore availability
+      printf("Waiting to access board 1...\n");
+      key = SEM1_KEY;
+      main_semd = semget(key, 1, 0);
+      if (main_semd == -1){
+        printf("%s\n", strerror(errno));
+      }
+      sb.sem_num = 0;
+      sb.sem_op = -1;
+      semop(main_semd, &sb, 1);
+      if (errno != 0){
+        printf("%s\n", strerror(errno));
+      }
+      printf("Access granted!\n");
+      if (board_filled(key)){
+        printf("This board has already been filled out.\n");
+      }
+      else {
+        create_board(key);
+        boat_input(key);
+      }
+      //done with semaphore
+      printf("done\n");
+      sb.sem_op = 1;
+      semop(main_semd, &sb, 1);
+      if (errno != 0){
+        printf("%s\n", strerror(errno));
+      }
+    }
+
+    //player 2
+    else if (!strcmp(argv[1], "2")){
+      //check semaphore availability
+      key = SEM2_KEY;
+      main_semd = semget(key, 1, 0);
+      if (main_semd == -1){
+        printf("%s\n", strerror(errno));
+      }
+      printf("Waiting to access board 2...\n");
+      sb.sem_num = 0;
+      sb.sem_op = -1;
+      semop(main_semd, &sb, 1);
+      if (errno != 0){
+        printf("%s\n", strerror(errno));
+      }
+      printf("Access granted!\n");
+      if (board_filled(key)){
+        printf("This board has already been filled out.\n");
+      }
+      else {
+        create_board(key);
+        boat_input(key);
+      }
+      //done with semaphore
+      sb.sem_op = 1;
+      semop(main_semd, &sb, 1);
+      if (errno != 0){
+        printf("%s\n", strerror(errno));
+      }
+    }
+    else {
+      printf("Please run setup.c with either 1 or 2\n");
+    }
+  }
+  else {
+    printf("Please run setup.c with either 1 or 2\n");
+  }
   return 0;
 }
