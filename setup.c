@@ -30,11 +30,7 @@ void create_sem(int key){
   semd = semget(key, 1, IPC_CREAT | IPC_EXCL | 0644);
   if (semd != -1){
     union semun us;
-    if (key == GSEM_KEY){
-      us.val = 2;
-    } else{
-      us.val = 1;
-    }
+    us.val = 1;
     semctl(semd, 0, SETVAL, us);
   } else {
     errno = 0;
@@ -185,7 +181,8 @@ int main(int argc, char const *argv[]) {
   //create semaphores
   create_sem(SEM1_KEY);
   create_sem(SEM2_KEY);
-  create_sem(GSEM_KEY);
+  create_sem(G1SEM_KEY);
+  create_sem(G2SEM_KEY);
   if (argc > 1){
     //player 1
     if (!strcmp(argv[1], "1")){
