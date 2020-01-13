@@ -13,7 +13,8 @@
 #define BOARD2_KEY 12345
 #define SEM1_KEY 10050
 #define SEM2_KEY 11220
-#define GSEM_KEY 11228
+#define G1SEM_KEY 11228
+#define G2SEM_KEY 11369
 #define BOARD_SIZE 111
 
 void create_sem(int key);
