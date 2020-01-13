@@ -19,17 +19,29 @@ Updated code for ship struct but then realized that ships can just be stored in 
 jackieL -- 2020-01-09 22:46
 Finished writing basic function to place boats on board
 
-jackieL -- 2020-01-10 15:00
-Added semaphores to only allow one player to edit the board at a time
-
 peihuaH -- 2020-01-10 00:35
 Found bug that caused semaphore to be reset every time, used IPC_EXCL to fix it
+
+jackieL -- 2020-01-10 15:00
+Added semaphores to only allow one player to edit the board at a time
 
 peihuaH -- 2020-01-10 15:05
 Added gameplay file and have the game semaphore limit the process to two people at a time
 
+yifanW -- 2020-01-10 15:23
+Added function for firing shots to gameplay
+
 peihuaH -- 2020-01-10 16:42
 Used signals to make sure when people control-C, they release their semaphores
+
+yifanW -- 2020-01-11 16:51
+Added basic functions for faulty_coord and boat sank to gameplay
+
+yifanW -- 2020-01-11 22:13
+Added function to determine if player wins
+
+yifanW -- 2020-01-12 11:04
+Fixed code for fire, faulty_coord, boat_sank, and win
 
 peihuaH -- 2020-01-12 22:16
 Restored code that was lost due to prior merges and moved some function definitions to another file.
