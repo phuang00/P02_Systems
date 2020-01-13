@@ -1,13 +1,15 @@
 #include "battleship.h"
 
 int game_semd;
+char player;
+int key;
 struct sembuf sb;
 
 static void sighandler(int signo){
   printf("Exiting game...\n");
-  game_semd = semget(GSEM_KEY, 1, 0);
+  game_semd = semget(key, 1, 0);
   if (game_semd == -1){
-    printf("wrong sem: %s\n", strerror(errno));
+    errno = 0;
   }
   sb.sem_op = 1;
   semop(game_semd, &sb, 1);
@@ -120,35 +122,45 @@ int win(int key) { //1 is player won, 0 if not
 
 int main(int argc, char const *argv[]) {
   signal(SIGINT, sighandler);
-  printf("Waiting to play...\n");
-  game_semd = semget(GSEM_KEY, 1, 0);
-  if (game_semd == -1){
-    printf("%s\n", strerror(errno));
-  }
-  sb.sem_num = 0;
-  sb.sem_op = -1;
-  semop(game_semd, &sb, 1);
-  if (errno != 0){
-    printf("%s\n", strerror(errno));
-  }
-  printf("Entered game successfully\n");
-
-  int row;
-  char input[20];
-  char column;
-  while (1){
-    printf("\nNow placing your shots on the opponent's board...\n");
-    printf("Please input a row (int) and a column (char) separated by space:\n");
-    fgets(input, 20, stdin);
-    *strchr(input, '\n') = 0;
-    sscanf(input, "%d %c", &row, &column);
-    while (!check_coord(row, column) && faulty_coord(row, column, BOARD1_KEY)) {
-      printf("The values you inputted were not valid. Please try again:\n");
+  if (argc > 1){
+    printf("Waiting to play...\n");
+    if (!strcmp(argv[1], "1")){
+      key = G1SEM_KEY;
+    }
+    else if (!strcmp(argv[1], "2")){
+      key = G2SEM_KEY;
+    }
+    else {
+      printf("Please run ./play with either 1 or 2\n");
+      return 0;
+    }
+    game_semd = semget(key, 1, 0);
+    if (game_semd == -1){
+      printf("%s\n", strerror(errno));
+    }
+    sb.sem_num = 0;
+    sb.sem_op = -1;
+    semop(game_semd, &sb, 1);
+    if (errno != 0){
+      printf("%s\n", strerror(errno));
+    }
+    printf("Entered game successfully\n");
+    int row;
+    char input[20];
+    char column;
+    while (1){
+      printf("\nNow placing your shots on the opponent's board...\n");
+      printf("Please input a row (int) and a column (char) separated by space:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
       sscanf(input, "%d %c", &row, &column);
+      while (!check_coord(row, column) && faulty_coord(row, column, BOARD1_KEY)) {
+        printf("The values you inputted were not valid. Please try again:\n");
+        fgets(input, 20, stdin);
+        *strchr(input, '\n') = 0;
+        sscanf(input, "%d %c", &row, &column);
+      }
     }
-
   }
   return 0;
 }
