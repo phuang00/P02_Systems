@@ -36,6 +36,8 @@ void create_sem(int key){
       us.val = 1;
     }
     semctl(semd, 0, SETVAL, us);
+  } else {
+    errno = 0;
   }
 }
 
@@ -160,6 +162,7 @@ void boat_input(key){
   char input[20];
   char column, orient;
   int i;
+  display_board(key);
   for (i = 1; i <= 5; i++){
     printf("\nNow placing Boat %d...\n", i);
     printf("Please input a column (char), a row (int), and an orientation (l, r, u, d) separated by spaces:\n");
