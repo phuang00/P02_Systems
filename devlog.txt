@@ -15,3 +15,6 @@ Created help menu for setting up the game
 
 jackieL -- 2020-01-09 22:46
 Finished writing basic function to place boats on board
+
+jackieL -- 2020-01-10 15:00
+Added semaphores to only allow one player to edit the board at a time
