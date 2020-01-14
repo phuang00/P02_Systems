@@ -2,12 +2,14 @@
 
 int game_semd;
 char player;
-int key;
+int skey;
+int you;
+int them;
 struct sembuf sb;
 
 static void sighandler(int signo){
   printf("Exiting game...\n");
-  game_semd = semget(key, 1, 0);
+  game_semd = semget(skey, 1, 0);
   if (game_semd == -1){
     errno = 0;
   }
@@ -120,21 +122,63 @@ int win(int key) { //1 is player won, 0 if not
   return 1;
 }
 
+void display_boards(){
+  int them_id;
+  char *data;
+  printf("Your Board:\n");
+  display_board(you);
+  printf("Opponent's Board:\n");
+  them_id = shmget(them, BOARD_SIZE, 0);
+  if (them_id == -1){
+    printf("bad: %s\n", strerror(errno));
+  }
+  data = shmat(them_id, 0, 0);
+  if (errno != 0){
+    printf("very bad: %s\n", strerror(errno));
+  }
+  else{
+    printf("    A B C D E F G H I J\n");
+    int i;
+    for (i = 0; i < 10; i++) {
+      if (i == 9) {
+        printf(" %d", i + 1);
+      } else {
+        printf("  %d", i + 1);
+      }
+      int j;
+      for (j = 0; j < 11; j++) {
+        char temp = *(data + i * 11 + j);
+        if (temp == 'X' || temp == '\n'){
+          printf(" %c", temp);
+        } else{
+          printf(" -");
+        }
+      }
+    }
+    printf("%s\n", data);
+
+  }
+}
+
 int main(int argc, char const *argv[]) {
   signal(SIGINT, sighandler);
   if (argc > 1){
     printf("Waiting to play...\n");
     if (!strcmp(argv[1], "1")){
-      key = G1SEM_KEY;
+      skey = G1SEM_KEY;
+      you = BOARD1_KEY;
+      them = BOARD2_KEY;
     }
     else if (!strcmp(argv[1], "2")){
-      key = G2SEM_KEY;
+      skey = G2SEM_KEY;
+      you = BOARD2_KEY;
+      them = BOARD1_KEY;
     }
     else {
       printf("Please run ./play with either 1 or 2\n");
       return 0;
     }
-    game_semd = semget(key, 1, 0);
+    game_semd = semget(skey, 1, 0);
     if (game_semd == -1){
       printf("%s\n", strerror(errno));
     }
@@ -148,6 +192,7 @@ int main(int argc, char const *argv[]) {
     int row;
     char input[20];
     char column;
+    display_boards();
     while (1){
       printf("\nNow placing your shots on the opponent's board...\n");
       printf("Please input a row (int) and a column (char) separated by space:\n");
@@ -160,6 +205,8 @@ int main(int argc, char const *argv[]) {
         *strchr(input, '\n') = 0;
         sscanf(input, "%d %c", &row, &column);
       }
+      fire(them, row, column);
+      display_boards();
     }
   }
   return 0;

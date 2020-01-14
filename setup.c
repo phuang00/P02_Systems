@@ -85,35 +85,6 @@ int board_filled(int key){ //check if board is filled or not
   return 0;
 }
 
-void display_board(int key){
-    int shmd;
-    char *data;
-    shmd = shmget(key, BOARD_SIZE, 0);
-    if (shmd == -1){
-      printf("%s\n", strerror(errno));
-    }
-    data = shmat(shmd, 0, 0);
-    if (errno != 0){
-      printf("%s\n", strerror(errno));
-    } else{
-      printf("    A B C D E F G H I J\n");
-      int i;
-      for (i = 0; i < 10; i++) {
-        if (i == 9) {
-          printf(" %d", i + 1);
-        } else {
-          printf("  %d", i + 1);
-        }
-        int j;
-        for (j = 0; j < 11; j++) {
-          printf(" %c", *(data + i * 11 + j));
-        }
-      }
-      //printf("%s\n",data);
-    }
-    shmdt(data);
-}
-
 int place_boat(int boat, int row, char column, char orient, int key){
   //check coordinates
   column = tolower(column);
