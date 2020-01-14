@@ -1,7 +1,8 @@
 #include "battleship.h"
 int main_semd;
 struct sembuf sb;
-int key;
+int shmkey;
+int semkey;
 
 // union semun {
 //   int              val;    /* Value for SETVAL */
@@ -13,7 +14,7 @@ int key;
 
 static void sighandler(int signo){
   printf("Exiting game...\n");
-  main_semd = semget(key, 1, 0);
+  main_semd = semget(semkey, 1, 0);
   if (main_semd == -1){
     printf("wrong sem: %s\n", strerror(errno));
   }
@@ -159,8 +160,9 @@ int main(int argc, char const *argv[]) {
     if (!strcmp(argv[1], "1")){
       //check semaphore availability
       printf("Waiting to access board 1...\n");
-      key = SEM1_KEY;
-      main_semd = semget(key, 1, 0);
+      shmkey = BOARD1_KEY;
+      semkey = SEM1_KEY;
+      main_semd = semget(semkey, 1, 0);
       if (main_semd == -1){
         printf("%s\n", strerror(errno));
       }
@@ -171,12 +173,12 @@ int main(int argc, char const *argv[]) {
         printf("%s\n", strerror(errno));
       }
       printf("Access granted!\n");
-      if (board_filled(key)){
+      if (board_filled(shmkey)){
         printf("This board has already been filled out.\n");
       }
       else {
-        create_board(key);
-        boat_input(key);
+        create_board(shmkey);
+        boat_input(shmkey);
       }
       //done with semaphore
       printf("done\n");
@@ -190,8 +192,9 @@ int main(int argc, char const *argv[]) {
     //player 2
     else if (!strcmp(argv[1], "2")){
       //check semaphore availability
-      key = SEM2_KEY;
-      main_semd = semget(key, 1, 0);
+      shmkey = BOARD2_KEY;
+      semkey = SEM2_KEY;
+      main_semd = semget(semkey, 1, 0);
       if (main_semd == -1){
         printf("%s\n", strerror(errno));
       }
@@ -203,12 +206,12 @@ int main(int argc, char const *argv[]) {
         printf("%s\n", strerror(errno));
       }
       printf("Access granted!\n");
-      if (board_filled(key)){
+      if (board_filled(shmkey)){
         printf("This board has already been filled out.\n");
       }
       else {
-        create_board(key);
-        boat_input(key);
+        create_board(shmkey);
+        boat_input(shmkey);
       }
       //done with semaphore
       sb.sem_op = 1;

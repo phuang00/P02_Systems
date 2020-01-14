@@ -127,6 +127,7 @@ void display_boards(){
   char *data;
   printf("Your Board:\n");
   display_board(you);
+  printf("hello\n");
   printf("Opponent's Board:\n");
   them_id = shmget(them, BOARD_SIZE, 0);
   if (them_id == -1){
@@ -155,8 +156,6 @@ void display_boards(){
         }
       }
     }
-    printf("%s\n", data);
-
   }
 }
 
