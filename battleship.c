@@ -30,13 +30,24 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   char * data = shmat(shmd, 0, 0);
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
+  printf("%s\n", copy);
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
 
+  //handling coordinates
+  row = row - 1; //row: 0 - 10
+  column = column % 65; // column 0 - 10
+
   //target ship
-  int ship_exists = (*(copy + row * 11 + column) != '-');
-  strcpy((copy + row * 11 + column), "X");
+  int ship_exists;
+  char target[1];
+  if (strcmp(&copy[row * 11 + column], "-") != 0){
+    ship_exists = 1;
+  } else {
+    ship_exists = 0;
+  }
+  strncpy(&copy[row * 11 + column], "X", 1); //cannot do this
   data = strcpy(data, copy);
   shmdt(data);
   if (!ship_exists) {
@@ -194,15 +205,15 @@ int main(int argc, char const *argv[]) {
     display_boards();
     while (1){
       printf("\nNow placing your shots on the opponent's board...\n");
-      printf("Please input a row (int) and a column (char) separated by space:\n");
+      printf("Please input a column (char) and a row (int) separated by space:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
-      sscanf(input, "%d %c", &row, &column);
-      while (!check_coord(row, column) && faulty_coord(row, column, BOARD1_KEY)) {
+      sscanf(input, "%c %d", &column, &row);
+      while (!check_coord(row, column) && faulty_coord(row, column, you)) {
         printf("The values you inputted were not valid. Please try again:\n");
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
-        sscanf(input, "%d %c", &row, &column);
+        sscanf(input, "%c %d", &column, &row);
       }
       fire(them, row, column);
       display_boards();
