@@ -52,3 +52,6 @@ Fixed errno messages that are showing up because of the IPC_EXCL flag
 
 peihuaH -- 2020-01-14 00:02
 Got your board and opponent board to display properly, there is a bug in fire function
+
+yifanW -- 2020-01-14 23:34
+Fixed error in fire function
