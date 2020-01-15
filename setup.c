@@ -62,34 +62,6 @@ void create_board(int key){
   //printf("shared memory created\n\n");
 }
 
-int board_filled(int key){ //check if board is filled or not
-  //access shared memory for board
-  int shmd = shmget(key, BOARD_SIZE, 0);
-  if (shmd == -1){
-    errno = 0;
-    return 0;
-  }
-  char * data = shmat(shmd, 0, 0);
-  if (errno != 0){
-    printf("%s\n", strerror(errno));
-  }
-  int one = 0;
-  int two = 0;
-  int three = 0;
-  int four = 0;
-  int five = 0;
-  int i;
-  for (i = 0; i < strlen(data); i++){
-    if (data[i] == '1') one++;
-    if (data[i] == '2') two++;
-    if (data[i] == '3') three++;
-    if (data[i] == '4') four++;
-    if (data[i] == '5') five++;
-  }
-  if (one == 1 && two == 2 && three == 3 & four == 4 && five == 5) return 1;
-  return 0;
-}
-
 int place_boat(int boat, int row, char column, char orient, int key){
   //check coordinates
   column = tolower(column);
@@ -140,7 +112,7 @@ void boat_input(key){
     row = 0; //reset values
     column = 0;
     orient = 0;
-    printf("Please input a column (char), a row (int), and an orientation (l, r, u, d) separated by spaces:\n");
+    printf("Please input a column (char), a row (int), and an orientation (l, r, u, d):\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
     sscanf(input, "%c %d %c", &column, &row, &orient);

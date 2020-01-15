@@ -23,3 +23,4 @@ int check_board(int key);
 void display_board(int key);
 int check_coord(int row, char column);
 int place_boat(int boat, int row, char column, char orient, int key);
+int board_filled(int key);

@@ -195,25 +195,33 @@ int main(int argc, char const *argv[]) {
       printf("%s\n", strerror(errno));
     }
     printf("Entered game successfully\n");
-    int row;
-    char input[20];
-    char column;
-    display_boards();
-    while (!win(you)){
-      printf("\nNow placing your shots on the opponent's board...\n");
-      printf("Please input a column (char) and a row (int) separated by space:\n");
-      fgets(input, 20, stdin);
-      *strchr(input, '\n') = 0;
-      sscanf(input, "%c %d", &column, &row);
-      while (!check_coord(row, column) && faulty_coord(row, column, you)) {
-        printf("The values you inputted were not valid. Please try again:\n");
+    if (board_filled(skey)){
+      int row;
+      char input[20];
+      char column;
+      display_boards();
+      while (!win(you)){
+        printf("\nNow placing your shots on the opponent's board...\n");
+        printf("Please input a column (char) and a row (int) separated by space:\n");
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
         sscanf(input, "%c %d", &column, &row);
+        while (!check_coord(row, column) && faulty_coord(row, column, you)) {
+          printf("The values you inputted were not valid. Please try again:\n");
+          fgets(input, 20, stdin);
+          *strchr(input, '\n') = 0;
+          sscanf(input, "%c %d", &column, &row);
+        }
+        fire(them, row, column);
+        display_boards();
       }
-      fire(them, row, column);
-      display_boards();
     }
+    else {
+      printf("Board is incomplete!\n");
+    }
+  }
+  else {
+    printf("Please run ./play with either 1 or 2\n");
   }
   return 0;
 }
