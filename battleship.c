@@ -30,7 +30,6 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   char * data = shmat(shmd, 0, 0);
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
-  printf("%s\n", copy);
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
@@ -42,7 +41,7 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   //target ship
   int ship_exists;
   char target[1];
-  if (strcmp(&copy[row * 11 + column], "-") != 0){
+  if (strncmp(&copy[row * 11 + column], "-", 1) != 0){
     ship_exists = 1;
   } else {
     ship_exists = 0;
@@ -120,15 +119,12 @@ int win(int key) { //1 is player won, 0 if not
   }
 
   //check if any boat is left
-  int boat, row, col;
-  for (boat = 0; boat < 5; boat++){
-    for (row = 0; row < 10; row++){
-      for (col = 0; col < 10; col++) {
-        if (*(copy + row * 11 + col) == boat) {
-          return 0;
-        }
-      }
-    }
+  for (int i = 0; i < BOARD_SIZE; i++) {
+    if (strcmp(&copy[i], "1")) return 0;
+    if (strcmp(&copy[i], "2")) return 0;
+    if (strcmp(&copy[i], "3")) return 0;
+    if (strcmp(&copy[i], "4")) return 0;
+    if (strcmp(&copy[i], "5")) return 0;
   }
   return 1;
 }
@@ -203,7 +199,7 @@ int main(int argc, char const *argv[]) {
     char input[20];
     char column;
     display_boards();
-    while (1){
+    while (!win(you)){
       printf("\nNow placing your shots on the opponent's board...\n");
       printf("Please input a column (char) and a row (int) separated by space:\n");
       fgets(input, 20, stdin);
