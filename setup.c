@@ -73,7 +73,11 @@ int board_filled(int key){ //check if board is filled or not
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
-  int one, two, three, four, five = 0;
+  int one = 0;
+  int two = 0;
+  int three = 0;
+  int four = 0;
+  int five = 0;
   int i;
   for (i = 0; i < strlen(data); i++){
     if (data[i] == '1') one++;
@@ -133,11 +137,17 @@ void boat_input(key){
   display_board(key);
   for (i = 1; i <= 5; i++){
     printf("\nNow placing Boat %d...\n", i);
+    row = 0; //reset values
+    column = 0;
+    orient = 0;
     printf("Please input a column (char), a row (int), and an orientation (l, r, u, d) separated by spaces:\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
     sscanf(input, "%c %d %c", &column, &row, &orient);
     while (!place_boat(i, row, column, orient, key)){
+      row = 0; //reset values
+      column = 0;
+      orient = 0;
       printf("The values you inputted were not valid. Please try again:\n");
       fgets(input, 20, stdin);
       *strchr(input, '\n') = 0;
@@ -146,6 +156,30 @@ void boat_input(key){
     display_board(key);
   }
   printf("Boats have been placed!\n");
+}
+
+void remove_shm(int key) {
+  int shmd;
+  shmd = shmget(key, BOARD_SIZE, 0);
+  if (shmd == -1){
+    printf("%s\n", strerror(errno));
+  }
+  shmctl(shmd, IPC_RMID, 0);
+  if (errno != 0){
+      printf("%s\n", strerror(errno));
+  }
+}
+
+void remove_sem(int key) {
+  int semd;
+  semd = semget(key, 1, 0);
+  if (semd == -1){
+    printf("%s\n", strerror(errno));
+  }
+  semctl(semd, IPC_RMID, 0);
+  if (errno != 0){
+      printf("%s\n", strerror(errno));
+  }
 }
 
 int main(int argc, char const *argv[]) {
@@ -181,7 +215,7 @@ int main(int argc, char const *argv[]) {
         boat_input(shmkey);
       }
       //done with semaphore
-      printf("done\n");
+      //printf("done\n");
       sb.sem_op = 1;
       semop(main_semd, &sb, 1);
       if (errno != 0){
@@ -220,12 +254,27 @@ int main(int argc, char const *argv[]) {
         printf("%s\n", strerror(errno));
       }
     }
+    else if (!strcmp(argv[1], "-r")){
+      printf("Are you sure you want to reset the game? (y/n): ");
+      char input[20];
+      fgets(input, 20, stdin);
+      input[1] = 0;
+      if (!strcmp(input, "y")){
+        remove_shm(BOARD1_KEY);
+        remove_shm(BOARD2_KEY);
+        remove_sem(SEM1_KEY);
+        remove_sem(SEM2_KEY);
+        remove_sem(G1SEM_KEY);
+        remove_sem(G2SEM_KEY);
+        printf("semaphores and shared memory removed\n");
+      }
+    }
     else {
-      printf("Please run setup.c with either 1 or 2\n");
+      printf("Please run setup.c with either 1, 2 or -r\n");
     }
   }
   else {
-    printf("Please run setup.c with either 1 or 2\n");
+    printf("Please run setup.c with either 1, 2, or -r\n");
   }
   return 0;
 }
