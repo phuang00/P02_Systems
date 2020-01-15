@@ -195,7 +195,7 @@ int main(int argc, char const *argv[]) {
       printf("%s\n", strerror(errno));
     }
     printf("Entered game successfully\n");
-    if (board_filled(skey)){
+    if (board_filled(you)){
       int row;
       char input[20];
       char column;
