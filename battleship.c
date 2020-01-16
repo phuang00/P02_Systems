@@ -22,6 +22,10 @@ static void sighandler(int signo){
 }
 
 int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if not
+  //handling coordinates
+  column = tolower(column);
+  column = column % 97; // column 0 - 9
+
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
@@ -33,10 +37,6 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
-
-  //handling coordinates
-  row = row - 1; //row: 0 - 10
-  column = column % 65; // column 0 - 10
 
   //target ship
   int ship_exists;
@@ -56,6 +56,10 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
 }
 
 int faulty_coord(int row, char column, int key) { //1 if coordinate entered has been hit already, 0 if not
+  //handling coordinates
+  column = tolower(column);
+  column = column % 97; // column 0 - 9
+
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
     printf("%s\n", strerror(errno));
@@ -134,7 +138,7 @@ void display_boards(){
   char *data;
   printf("Your Board:\n");
   display_board(you);
-  printf("hello\n");
+  //printf("hello\n");
   printf("Opponent's Board:\n");
   them_id = shmget(them, BOARD_SIZE, 0);
   if (them_id == -1){
@@ -148,11 +152,7 @@ void display_boards(){
     printf("    A B C D E F G H I J\n");
     int i;
     for (i = 0; i < 10; i++) {
-      if (i == 9) {
-        printf(" %d", i + 1);
-      } else {
-        printf("  %d", i + 1);
-      }
+      printf("  %d", i);
       int j;
       for (j = 0; j < 11; j++) {
         char temp = *(data + i * 11 + j);
@@ -202,11 +202,11 @@ int main(int argc, char const *argv[]) {
       display_boards();
       while (!win(you)){
         printf("\nNow placing your shots on the opponent's board...\n");
-        printf("Please input a column (char) and a row (int) separated by space:\n");
+        printf("Please input a column (char) and a row (int):\n");
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
         sscanf(input, "%c %d", &column, &row);
-        while (!check_coord(row, column) && faulty_coord(row, column, you)) {
+        while (!check_coord(row, column) || faulty_coord(row, column, you)) {
           printf("The values you inputted were not valid. Please try again:\n");
           fgets(input, 20, stdin);
           *strchr(input, '\n') = 0;

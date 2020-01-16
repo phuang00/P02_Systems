@@ -67,7 +67,6 @@ int place_boat(int boat, int row, char column, char orient, int key){
   column = tolower(column);
   if (!check_coord(row, column)) return 0;
   int coll = column % 97;
-  row -= 1;
   //check orientation
   orient = tolower(orient);
   if (orient != 'l' && orient != 'r' && orient != 'u' && orient != 'd') return 0;
@@ -131,8 +130,7 @@ void boat_input(key){
 }
 
 void remove_shm(int key) {
-  int shmd;
-  shmd = shmget(key, BOARD_SIZE, 0);
+  int shmd = shmget(key, 1, 0);
   if (shmd == -1){
     printf("%s\n", strerror(errno));
   }
@@ -142,12 +140,7 @@ void remove_shm(int key) {
   }
 }
 
-void remove_sem(int key) {
-  int semd;
-  semd = semget(key, 1, 0);
-  if (semd == -1){
-    printf("%s\n", strerror(errno));
-  }
+void remove_sem(int semd) {
   semctl(semd, IPC_RMID, 0);
   if (errno != 0){
       printf("%s\n", strerror(errno));
@@ -232,12 +225,54 @@ int main(int argc, char const *argv[]) {
       fgets(input, 20, stdin);
       input[1] = 0;
       if (!strcmp(input, "y")){
+        printf("Waiting for access to semaphores...\n");
+        //wait for semaphore to remove game
+        int semd1 = semget(SEM1_KEY, 1, 0);
+        if (semd1 == -1){
+          printf("%s\n", strerror(errno));
+        }
+        int semd2 = semget(SEM2_KEY, 1, 0);
+        if (semd2 == -1){
+          printf("%s\n", strerror(errno));
+        }
+        int semd3 = semget(G1SEM_KEY, 1, 0);
+        if (semd3 == -1){
+          printf("%s\n", strerror(errno));
+        }
+        int semd4 = semget(G2SEM_KEY, 1, 0);
+        if (semd4 == -1){
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(semd1, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(semd2, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(semd3, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(semd4, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
         remove_shm(BOARD1_KEY);
         remove_shm(BOARD2_KEY);
-        remove_sem(SEM1_KEY);
-        remove_sem(SEM2_KEY);
-        remove_sem(G1SEM_KEY);
-        remove_sem(G2SEM_KEY);
+        remove_sem(semd1);
+        remove_sem(semd2);
+        remove_sem(semd3);
+        remove_sem(semd4);
         printf("semaphores and shared memory removed\n");
       }
     }
