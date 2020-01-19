@@ -15,6 +15,7 @@
 #define SEM2_KEY 11220
 #define G1SEM_KEY 11228
 #define G2SEM_KEY 11369
+#define TURN_KEY 10305
 #define BOARD_SIZE 111
 
 void create_sem(int key);

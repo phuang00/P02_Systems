@@ -154,6 +154,7 @@ int main(int argc, char const *argv[]) {
   create_sem(SEM2_KEY);
   create_sem(G1SEM_KEY);
   create_sem(G2SEM_KEY);
+  create_sem(TURN_KEY);
   if (argc > 1){
     //player 1
     if (!strcmp(argv[1], "1")){
@@ -243,6 +244,10 @@ int main(int argc, char const *argv[]) {
         if (semd4 == -1){
           printf("%s\n", strerror(errno));
         }
+        int semd5 = semget(TURN_KEY, 1, 0);
+        if (semd5 == -1){
+          printf("%s\n", strerror(errno));
+        }
         sb.sem_num = 0;
         sb.sem_op = -1;
         semop(semd1, &sb, 1);
@@ -267,12 +272,19 @@ int main(int argc, char const *argv[]) {
         if (errno != 0){
           printf("%s\n", strerror(errno));
         }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(semd5, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
         remove_shm(BOARD1_KEY);
         remove_shm(BOARD2_KEY);
         remove_sem(semd1);
         remove_sem(semd2);
         remove_sem(semd3);
         remove_sem(semd4);
+        remove_sem(semd5);
         printf("semaphores and shared memory removed\n");
       }
     }

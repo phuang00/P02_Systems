@@ -5,6 +5,7 @@ char player;
 int skey;
 int you;
 int them;
+int turn;
 struct sembuf sb;
 
 static void sighandler(int signo){
@@ -15,6 +16,11 @@ static void sighandler(int signo){
   }
   sb.sem_op = 1;
   semop(game_semd, &sb, 1);
+  if (errno != 0){
+    printf("this: %s\n", strerror(errno));
+  }
+  sb.sem_op = 1;
+  semop(turn, &sb, 1);
   if (errno != 0){
     printf("this: %s\n", strerror(errno));
   }
@@ -62,13 +68,14 @@ int faulty_coord(int row, char column, int key) { //1 if coordinate entered has 
 
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    printf("%s\n", strerror(errno));
+    printf("you?????%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
+  printf("herrrr\n");
   if (errno != 0){
-    printf("%s\n", strerror(errno));
+    printf("me?????%s\n", strerror(errno));
   }
 
   int been_hit = (*(copy + row * 11 + column) == 'X');
@@ -199,13 +206,27 @@ int main(int argc, char const *argv[]) {
       int row;
       char input[20];
       char column;
-      display_boards();
       while (!win(you)){
+        printf("Waiting for your turn...\n");
+        int turn = semget(TURN_KEY, 1, 0);
+        if (turn == -1) {
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(turn, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+        display_boards();
         printf("\nNow placing your shots on the opponent's board...\n");
         printf("Please input a column (char) and a row (int):\n");
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
         sscanf(input, "%c %d", &column, &row);
+        printf("ahhhh lifee\n");
+        printf("row: %c\n", row);
+        printf("col: %c\n", column);
         while (!check_coord(row, column) || faulty_coord(row, column, you)) {
           printf("The values you inputted were not valid. Please try again:\n");
           fgets(input, 20, stdin);
@@ -214,6 +235,16 @@ int main(int argc, char const *argv[]) {
         }
         fire(them, row, column);
         display_boards();
+        sb.sem_op = 1;
+        semop(turn, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+      }
+      sb.sem_op = 1;
+      semop(game_semd, &sb, 1);
+      if (errno != 0){
+        printf("%s\n", strerror(errno));
       }
     }
     else {
