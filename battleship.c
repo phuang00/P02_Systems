@@ -3,8 +3,6 @@
 int game_semd;
 char player;
 int skey;
-int you;
-int them;
 int turn;
 struct sembuf sb;
 
@@ -19,6 +17,7 @@ static void sighandler(int signo){
   if (errno != 0){
     printf("this: %s\n", strerror(errno));
   }
+  turn = semget(TURN_KEY, 1, 0);
   sb.sem_op = 1;
   semop(turn, &sb, 1);
   if (errno != 0){
@@ -35,13 +34,13 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    printf("%s\n", strerror(errno));
+    printf("whoa %s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
   if (errno != 0){
-    printf("%s\n", strerror(errno));
+    printf("whattt %s\n", strerror(errno));
   }
 
   //target ship
@@ -65,7 +64,7 @@ int faulty_coord(int row, char column, int key) { //1 if coordinate entered has 
   //handling coordinates
   column = tolower(column);
   column = column % 97; // column 0 - 9
-
+  printf("_%d\n", key);
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
     printf("you?????%s\n", strerror(errno));
@@ -77,8 +76,9 @@ int faulty_coord(int row, char column, int key) { //1 if coordinate entered has 
   if (errno != 0){
     printf("me?????%s\n", strerror(errno));
   }
-
+  printf("thing id: %c\n", (*(copy + row * 11 + column)));
   int been_hit = (*(copy + row * 11 + column) == 'X');
+  printf("stuffffshofdof\n");
   if (been_hit) {
     return 1;
   }
@@ -140,7 +140,7 @@ int win(int key) { //1 is player won, 0 if not
   return 1;
 }
 
-void display_boards(){
+void display_boards(int you, int them){
   int them_id;
   char *data;
   printf("Your Board:\n");
@@ -174,6 +174,8 @@ void display_boards(){
 }
 
 int main(int argc, char const *argv[]) {
+  int you;
+  int them;
   signal(SIGINT, sighandler);
   if (argc > 1){
     printf("Waiting to play...\n");
@@ -218,7 +220,7 @@ int main(int argc, char const *argv[]) {
         if (errno != 0){
           printf("%s\n", strerror(errno));
         }
-        display_boards();
+        display_boards(you, them);
         printf("\nNow placing your shots on the opponent's board...\n");
         printf("Please input a column (char) and a row (int):\n");
         fgets(input, 20, stdin);
@@ -227,14 +229,16 @@ int main(int argc, char const *argv[]) {
         printf("ahhhh lifee\n");
         printf("row: %c\n", row);
         printf("col: %c\n", column);
-        while (!check_coord(row, column) || faulty_coord(row, column, you)) {
+        while (!check_coord(row, column) || faulty_coord(row, column, them)) {
+          printf("crap: %d\n", check_coord(row, column));
+          printf("stuff %d\n", faulty_coord(row, column, them));
           printf("The values you inputted were not valid. Please try again:\n");
           fgets(input, 20, stdin);
           *strchr(input, '\n') = 0;
           sscanf(input, "%c %d", &column, &row);
         }
         fire(them, row, column);
-        display_boards();
+        display_boards(you, them);
         sb.sem_op = 1;
         semop(turn, &sb, 1);
         if (errno != 0){
