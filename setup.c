@@ -18,10 +18,14 @@ static void sighandler(int signo){
   if (main_semd == -1){
     printf("wrong sem: %s\n", strerror(errno));
   }
-  sb.sem_op = 1;
-  semop(main_semd, &sb, 1);
-  if (errno != 0){
-    printf("this: %s\n", strerror(errno));
+  int last_pid = semctl(main_semd, 0, GETPID, 0); //get pid of last process to perform op on semaphore
+  int my_pid = getpid();
+  if (last_pid == my_pid){ //if this process has control of semaphore
+    sb.sem_op = 1;
+    semop(main_semd, &sb, 1);
+    if (errno != 0){
+      printf("this: %s\n", strerror(errno));
+    }
   }
   exit(1);
 }

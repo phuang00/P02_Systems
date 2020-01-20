@@ -61,7 +61,7 @@ int board_filled(int key){ //check if board is filled or not
   }
   shmdt(data);
   if (one == 1 && two == 2 && three == 3 & four == 4 && five == 5) return 1;
-  if (hit == 15) return 1;
+  if ((one + two + three + four + five + hit) == 15) return 1;
 
   return 0;
 }

@@ -1,8 +1,10 @@
 #include "battleship.h"
 
 int game_semd;
+int game2_semd;
 char player;
 int skey;
+int s2key;
 int turn;
 struct sembuf sb;
 
@@ -12,16 +14,23 @@ static void sighandler(int signo){
   if (game_semd == -1){
     errno = 0;
   }
-  sb.sem_op = 1;
-  semop(game_semd, &sb, 1);
-  if (errno != 0){
-    printf("this: %s\n", strerror(errno));
+  int last_game_pid = semctl(game_semd, 0, GETPID, 0);
+  int my_pid = getpid();
+  if (last_game_pid == my_pid){
+    sb.sem_op = 1;
+    semop(game_semd, &sb, 1);
+    if (errno != 0){
+      printf("this: %s\n", strerror(errno));
+    }
   }
   turn = semget(TURN_KEY, 1, 0);
-  sb.sem_op = 1;
-  semop(turn, &sb, 1);
-  if (errno != 0){
-    printf("this: %s\n", strerror(errno));
+  int last_turn_pid = semctl(turn, 0, GETPID, 0);
+  if (last_turn_pid == my_pid){
+    sb.sem_op = 1;
+    semop(turn, &sb, 1);
+    if (errno != 0){
+      printf("this: %s\n", strerror(errno));
+    }
   }
   exit(1);
 }
@@ -181,11 +190,13 @@ int main(int argc, char const *argv[]) {
     printf("Waiting to play...\n");
     if (!strcmp(argv[1], "1")){
       skey = G1SEM_KEY;
+      s2key = G2SEM_KEY;
       you = BOARD1_KEY;
       them = BOARD2_KEY;
     }
     else if (!strcmp(argv[1], "2")){
       skey = G2SEM_KEY;
+      s2key = G1SEM_KEY;
       you = BOARD2_KEY;
       them = BOARD1_KEY;
     }
@@ -203,58 +214,63 @@ int main(int argc, char const *argv[]) {
     if (errno != 0){
       printf("%s\n", strerror(errno));
     }
+    game2_semd = semget(s2key, 1, 0);
+    if (game2_semd == -1){
+      printf("%s\n", strerror(errno));
+    }
+    int val;
     printf("Entered game successfully!\n");
     if (board_filled(you)){
-      if (!board_filled(them)){
-        printf("Other player's board is incomplete!\n");
-      }
-      else {
-        int row;
-        char input[20];
-        char column;
-        while (!win(you) && !win(them)){
-          printf("Waiting for your turn...\n");
-          int turn = semget(TURN_KEY, 1, 0);
-          if (turn == -1) {
-            printf("%s\n", strerror(errno));
-          }
-          sb.sem_num = 0;
-          sb.sem_op = -1;
-          semop(turn, &sb, 1);
-          if (errno != 0){
-            printf("%s\n", strerror(errno));
-          }
-          display_boards(you, them);
-          printf("\nNow placing your shots on the opponent's board...\n");
-          printf("Please input a column (char) and a row (int):\n");
+      int row;
+      char input[20];
+      char column;
+      while (!win(you) && !win(them)){
+        val = semctl(game2_semd, 0, GETVAL, 0);
+        printf("Waiting for other player to join the game...\n");
+        while (val != 0){ //player is not logged on
+          val = semctl(game2_semd, 0, GETVAL, 0);
+        }
+        printf("Waiting for your turn...\n");
+        int turn = semget(TURN_KEY, 1, 0);
+        if (turn == -1) {
+          printf("%s\n", strerror(errno));
+        }
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(turn, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
+        }
+        display_boards(you, them);
+        printf("\nNow placing your shots on the opponent's board...\n");
+        printf("Please input a column (char) and a row (int):\n");
+        fgets(input, 20, stdin);
+        *strchr(input, '\n') = 0;
+        sscanf(input, "%c %d", &column, &row);
+        printf("ahhhh lifee\n");
+        printf("row: %d\n", row);
+        printf("col: %c\n", column);
+        while (!check_coord(row, column) || dup_coord(row, column, them)){
+          printf("crap: %d\n", check_coord(row, column));
+          printf("stuff %d\n", dup_coord(row, column, them));
+          printf("The values you inputted were not valid. Please try again:\n");
           fgets(input, 20, stdin);
           *strchr(input, '\n') = 0;
           sscanf(input, "%c %d", &column, &row);
-          printf("ahhhh lifee\n");
-          printf("row: %d\n", row);
-          printf("col: %c\n", column);
-          while (!check_coord(row, column) || dup_coord(row, column, them)){
-            printf("crap: %d\n", check_coord(row, column));
-            printf("stuff %d\n", dup_coord(row, column, them));
-            printf("The values you inputted were not valid. Please try again:\n");
-            fgets(input, 20, stdin);
-            *strchr(input, '\n') = 0;
-            sscanf(input, "%c %d", &column, &row);
-          }
-          fire(them, row, column);
-          display_boards(you, them);
-          sb.sem_op = 1;
-          semop(turn, &sb, 1);
-          if (errno != 0){
-            printf("%s\n", strerror(errno));
-          }
         }
-        if (win(you)){
-          printf("You won!\n");
+        fire(them, row, column);
+        display_boards(you, them);
+        sb.sem_op = 1;
+        semop(turn, &sb, 1);
+        if (errno != 0){
+          printf("%s\n", strerror(errno));
         }
-        else {
-          printf("You lost!\n");
-        }
+      }
+      if (win(you)){
+        printf("You won!\n");
+      }
+      else {
+        printf("You lost!\n");
       }
     }
     else {
