@@ -53,14 +53,27 @@ Fixed errno messages that are showing up because of the IPC_EXCL flag
 peihuaH -- 2020-01-14 00:02
 Got your board and opponent board to display properly, there is a bug in fire function
 
+peihuaH -- 2020-01-14 15:23
+Fixed issue that occurred because shmget was using sem key instead of the keys for board1 and board2
+
 yifanW -- 2020-01-14 23:34
 Fixed error in fire function
 
 jackieL -- 2020-01-15 20:34
 Wrote code to remove semaphores and shared memory, fixed bugs in firing functions, renamed rows in board
 
+peihuaH -- 2020-01-19 18:27
+Add a semaphore to keep track of player turns. Found two bugs, fixed the one where faulty coordinates was checking
+for the wrong board. There's still an issue with seg fault that I can't find the source of.
+
 jackieL -- 2020-01-19 21:34
 Fixed segmentation faults by fixing code to access shared memory, fixed errors in fire and win functions
 
 jackieL -- 2020-01-19 23:41
 Fixed error with exiting process and releasing semaphores, fixed error with making sure both players join the game before game starts
+
+peihuaH -- 2020-01-19 23:51
+Removed diagnostic print statements.
+
+peihuaH -- 2020-01-20 00:23
+Added int type to parameter for boat_input
