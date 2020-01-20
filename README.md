@@ -32,4 +32,4 @@ A terminal re-creation of the famous Battleship game.
 6. Once one of you has sunk all five of the other's ships, the game will come to an end. If you would like to play again, reset the game by running ./setup -r. When the terminal prompts you with the question, "Are you sure you want to reset the game? (y/n): ", type in y for yes, n for no. 
 7. Have fun!
 
-*If you need to view these instructions again, run cat helpMenu in the terminal!*
+*(If you need to view these instructions again, run cat helpMenu in the terminal!)*
