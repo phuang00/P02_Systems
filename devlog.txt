@@ -57,7 +57,7 @@ peihuaH -- 2020-01-14 15:23
 Fixed issue that occurred because shmget was using sem key instead of the keys for board1 and board2
 
 yifanW -- 2020-01-14 23:34
-Fixed error in fire function
+Fixed error in fire function but there still are errors that need to be debugged
 
 jackieL -- 2020-01-15 20:34
 Wrote code to remove semaphores and shared memory, fixed bugs in firing functions, renamed rows in board
@@ -80,3 +80,9 @@ Added int type to parameter for boat_input
 
 jackieL -- 2020-01-20 00:29
 brought README into alignment with final specifications
+
+yifanW -- 2020-01-20 00:35
+Updated helpMenu
+
+yifanW -- 2020-01-20 01:21
+Edited print statements and uncommented semun struct
