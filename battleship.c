@@ -125,11 +125,11 @@ int win(int key) { //1 is player won, 0 if not
 
   //check if any boat is left
   for (int i = 0; i < BOARD_SIZE; i++) {
-    if (strcmp(copy[i], '1')) return 0;
-    if (strcmp(copy[i], '2')) return 0;
-    if (strcmp(copy[i], '3')) return 0;
-    if (strcmp(copy[i], '4')) return 0;
-    if (strcmp(copy[i], '5')) return 0;
+    if (copy[i] == '1') return 0;
+    if (copy[i] == '2') return 0;
+    if (copy[i] == '3') return 0;
+    if (copy[i] == '4') return 0;
+    if (copy[i] == '5') return 0;
   }
   return 1;
 }
