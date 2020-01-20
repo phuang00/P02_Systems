@@ -77,3 +77,6 @@ Removed diagnostic print statements.
 
 peihuaH -- 2020-01-20 00:23
 Added int type to parameter for boat_input
+
+jackieL -- 2020-01-20 00:29
+brought README into alignment with final specifications
