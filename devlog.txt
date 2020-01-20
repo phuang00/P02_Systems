@@ -61,3 +61,6 @@ Wrote code to remove semaphores and shared memory, fixed bugs in firing function
 
 jackieL -- 2020-01-19 21:34
 Fixed segmentation faults by fixing code to access shared memory, fixed errors in fire and win functions
+
+jackieL -- 2020-01-19 23:41
+Fixed error with exiting process and releasing semaphores, fixed error with making sure both players join the game before game starts
