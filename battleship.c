@@ -258,10 +258,10 @@ int main(int argc, char const *argv[]) {
         }
       }
       if (win(you)){
-        printf("You won!\n");
+        printf("You won! To restart the game, run ./setup -r!\n");
       }
       else {
-        printf("You lost!\n");
+        printf("You lost! To restart the game, run ./setup -r!\n");
       }
     }
     else {

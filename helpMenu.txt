@@ -1,6 +1,5 @@
 User Instructions:
 
-
 0. After downloading the project, find a friend to play Battleship with you!
 1. In the terminal, type make.
 2. Type ./setup 1 to begin setting up your own board. Tell your friend to run ./setup 2!
