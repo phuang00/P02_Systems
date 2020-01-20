@@ -1,7 +1,6 @@
 #include "battleship.h"
 
 int check_coord(int row, char column){ //check if coordinates are out of bounds
-  printf("here we goo %d %c\n", row, column);
   column = tolower(column);
   if (row < 0 || row > 9) return 0;
   if (column < 97 || column > 123) return 0;

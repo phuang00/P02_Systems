@@ -20,7 +20,7 @@ static void sighandler(int signo){
     sb.sem_op = 1;
     semop(game_semd, &sb, 1);
     if (errno != 0){
-      printf("this: %s\n", strerror(errno));
+      printf("%s\n", strerror(errno));
     }
   }
   turn = semget(TURN_KEY, 1, 0);
@@ -29,7 +29,7 @@ static void sighandler(int signo){
     sb.sem_op = 1;
     semop(turn, &sb, 1);
     if (errno != 0){
-      printf("this: %s\n", strerror(errno));
+      printf("%s\n", strerror(errno));
     }
   }
   exit(1);
@@ -43,13 +43,13 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   //access shared memory for board
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    printf("whoa %s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
   char copy[BOARD_SIZE]; //copy of data
   strcpy(copy, data);
   if (errno != 0){
-    printf("whattt %s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
 
   //target ship
@@ -79,16 +79,13 @@ int dup_coord(int row, char column, int key) { //1 if coordinate entered has bee
   printf("_%d\n", key);
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
-    printf("you?????%s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
-  printf("herrrr\n");
   if (errno != 0){
-    printf("me?????%s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
-  printf("thing id: %c\n", (*(data + row * 11 + column)));
   int been_hit = (*(data + row * 11 + column) == 'X') || (*(data + row * 11 + column) == 'O');
-  printf("stuffffshofdof\n");
   shmdt(data);
   return been_hit;
 }
@@ -157,11 +154,11 @@ void display_boards(int you, int them){
   printf("Opponent's Board:\n");
   them_id = shmget(them, BOARD_SIZE, 0);
   if (them_id == -1){
-    printf("bad: %s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
   data = shmat(them_id, 0, 0);
   if (errno != 0){
-    printf("very bad: %s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
   else{
     printf("    A B C D E F G H I J\n");
@@ -247,12 +244,7 @@ int main(int argc, char const *argv[]) {
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
         sscanf(input, "%c %d", &column, &row);
-        printf("ahhhh lifee\n");
-        printf("row: %d\n", row);
-        printf("col: %c\n", column);
         while (!check_coord(row, column) || dup_coord(row, column, them)){
-          printf("crap: %d\n", check_coord(row, column));
-          printf("stuff %d\n", dup_coord(row, column, them));
           printf("The values you inputted were not valid. Please try again:\n");
           fgets(input, 20, stdin);
           *strchr(input, '\n') = 0;

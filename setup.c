@@ -16,7 +16,7 @@ static void sighandler(int signo){
   printf("Exiting game...\n");
   main_semd = semget(semkey, 1, 0);
   if (main_semd == -1){
-    printf("wrong sem: %s\n", strerror(errno));
+    printf("%s\n", strerror(errno));
   }
   int last_pid = semctl(main_semd, 0, GETPID, 0); //get pid of last process to perform op on semaphore
   int my_pid = getpid();
@@ -24,7 +24,7 @@ static void sighandler(int signo){
     sb.sem_op = 1;
     semop(main_semd, &sb, 1);
     if (errno != 0){
-      printf("this: %s\n", strerror(errno));
+      printf("%s\n", strerror(errno));
     }
   }
   exit(1);
