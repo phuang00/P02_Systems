@@ -8,8 +8,9 @@ A terminal re-creation of the famous Battleship game.
 *None*
 
 ## User Instructions 
-1. After downloading the project, find a friend to play Battleship wwith you!
-2. In the terminal, run ./setup 1 to begin setting up your own board. Tell your friend to run ./setup 2!
+0. After downloading the project, find a friend to play Battleship with you!
+1. In the terminal, type make. 
+2. Type ./setup 1 to begin setting up your own board. Tell your friend to run ./setup 2!
 3. You should see a 10x10 board on the terminal. You will now begin placing your five ships (lengths 1-5) down on the board. To place a ship, you must provide **3** values in the following order: column (A-J), row (0-9), and orientation (l - left, r - right, u - up, d - down). 
     - keep in mind that the first three characters of your input will be interpreted as the column, row, and orientation
     - you are allowed to separate your input by spaces
@@ -30,3 +31,5 @@ A terminal re-creation of the famous Battleship game.
     - '-' indicates that the coordinate has not been fired at yet. 
 6. Once one of you has sunk all five of the other's ships, the game will come to an end. If you would like to play again, reset the game by running ./setup -r. When the terminal prompts you with the question, "Are you sure you want to reset the game? (y/n): ", type in y for yes, n for no. 
 7. Have fun!
+
+*If you need to view these instructions again, run cat helpMenu in the terminal!*
