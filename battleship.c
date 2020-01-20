@@ -54,35 +54,29 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   strncpy(&copy[row * 11 + column], "X", 1); //cannot do this
   data = strcpy(data, copy);
   shmdt(data);
-  if (!ship_exists) {
-    return 0;
-  }
-  return 1;
+  return ship_exists;
 }
 
-int faulty_coord(int row, char column, int key) { //1 if coordinate entered has been hit already, 0 if not
+int dup_coord(int row, char column, int key) { //1 if coordinate entered has been hit already, 0 if not
   //handling coordinates
   column = tolower(column);
   column = column % 97; // column 0 - 9
+
   printf("_%d\n", key);
   int shmd = shmget(key, BOARD_SIZE, 0);
   if (shmd == -1){
     printf("you?????%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
-  char copy[BOARD_SIZE]; //copy of data
-  strcpy(copy, data);
   printf("herrrr\n");
   if (errno != 0){
     printf("me?????%s\n", strerror(errno));
   }
-  printf("thing id: %c\n", (*(copy + row * 11 + column)));
-  int been_hit = (*(copy + row * 11 + column) == 'X');
+  printf("thing id: %c\n", (*(data + row * 11 + column)));
+  int been_hit = (*(data + row * 11 + column) == 'X');
   printf("stuffffshofdof\n");
-  if (been_hit) {
-    return 1;
-  }
-  return 0;
+  shmdt(data);
+  return been_hit;
 }
 
 int boat_sank(int key, int boat) { // returns 1 if boat has been sank, 0 if not
@@ -92,8 +86,6 @@ int boat_sank(int key, int boat) { // returns 1 if boat has been sank, 0 if not
     printf("%s\n", strerror(errno));
   }
   char * data = shmat(shmd, 0, 0);
-  char copy[BOARD_SIZE]; //copy of data
-  strcpy(copy, data);
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
@@ -102,11 +94,12 @@ int boat_sank(int key, int boat) { // returns 1 if boat has been sank, 0 if not
   int row, col;
   for (row = 0; row < 10; row++){
     for (col = 0; col < 10; col++) {
-      if (*(copy + row * 11 + col) == boat) {
+      if (*(data + row * 11 + col) == boat) {
         return 0;
       }
     }
   }
+  shmdt(data);
   return 1;
 }
 
@@ -128,14 +121,15 @@ int win(int key) { //1 is player won, 0 if not
   if (errno != 0){
     printf("%s\n", strerror(errno));
   }
+  shmdt(data);
 
   //check if any boat is left
   for (int i = 0; i < BOARD_SIZE; i++) {
-    if (strcmp(&copy[i], "1")) return 0;
-    if (strcmp(&copy[i], "2")) return 0;
-    if (strcmp(&copy[i], "3")) return 0;
-    if (strcmp(&copy[i], "4")) return 0;
-    if (strcmp(&copy[i], "5")) return 0;
+    if (strcmp(copy[i], '1')) return 0;
+    if (strcmp(copy[i], '2')) return 0;
+    if (strcmp(copy[i], '3')) return 0;
+    if (strcmp(copy[i], '4')) return 0;
+    if (strcmp(copy[i], '5')) return 0;
   }
   return 1;
 }
@@ -171,6 +165,7 @@ void display_boards(int you, int them){
       }
     }
   }
+  shmdt(data);
 }
 
 int main(int argc, char const *argv[]) {
@@ -203,56 +198,61 @@ int main(int argc, char const *argv[]) {
     if (errno != 0){
       printf("%s\n", strerror(errno));
     }
-    printf("Entered game successfully\n");
+    printf("Entered game successfully!\n");
     if (board_filled(you)){
-      int row;
-      char input[20];
-      char column;
-      while (!win(you)){
-        printf("Waiting for your turn...\n");
-        int turn = semget(TURN_KEY, 1, 0);
-        if (turn == -1) {
-          printf("%s\n", strerror(errno));
-        }
-        sb.sem_num = 0;
-        sb.sem_op = -1;
-        semop(turn, &sb, 1);
-        if (errno != 0){
-          printf("%s\n", strerror(errno));
-        }
-        display_boards(you, them);
-        printf("\nNow placing your shots on the opponent's board...\n");
-        printf("Please input a column (char) and a row (int):\n");
-        fgets(input, 20, stdin);
-        *strchr(input, '\n') = 0;
-        sscanf(input, "%c %d", &column, &row);
-        printf("ahhhh lifee\n");
-        printf("row: %c\n", row);
-        printf("col: %c\n", column);
-        while (!check_coord(row, column) || faulty_coord(row, column, them)) {
-          printf("crap: %d\n", check_coord(row, column));
-          printf("stuff %d\n", faulty_coord(row, column, them));
-          printf("The values you inputted were not valid. Please try again:\n");
+      if (!board_filled(them)){
+        printf("Other player's board is incomplete!\n");
+      }
+      else {
+        int row;
+        char input[20];
+        char column;
+        while (!win(you)){
+          printf("Waiting for your turn...\n");
+          int turn = semget(TURN_KEY, 1, 0);
+          if (turn == -1) {
+            printf("%s\n", strerror(errno));
+          }
+          sb.sem_num = 0;
+          sb.sem_op = -1;
+          semop(turn, &sb, 1);
+          if (errno != 0){
+            printf("%s\n", strerror(errno));
+          }
+          display_boards(you, them);
+          printf("\nNow placing your shots on the opponent's board...\n");
+          printf("Please input a column (char) and a row (int):\n");
           fgets(input, 20, stdin);
           *strchr(input, '\n') = 0;
           sscanf(input, "%c %d", &column, &row);
+          printf("ahhhh lifee\n");
+          printf("row: %d\n", row);
+          printf("col: %c\n", column);
+          while (!check_coord(row, column) || dup_coord(row, column, them)){
+            printf("crap: %d\n", check_coord(row, column));
+            printf("stuff %d\n", dup_coord(row, column, them));
+            printf("The values you inputted were not valid. Please try again:\n");
+            fgets(input, 20, stdin);
+            *strchr(input, '\n') = 0;
+            sscanf(input, "%c %d", &column, &row);
+          }
+          fire(them, row, column);
+          display_boards(you, them);
+          sb.sem_op = 1;
+          semop(turn, &sb, 1);
+          if (errno != 0){
+            printf("%s\n", strerror(errno));
+          }
         }
-        fire(them, row, column);
-        display_boards(you, them);
-        sb.sem_op = 1;
-        semop(turn, &sb, 1);
-        if (errno != 0){
-          printf("%s\n", strerror(errno));
-        }
-      }
-      sb.sem_op = 1;
-      semop(game_semd, &sb, 1);
-      if (errno != 0){
-        printf("%s\n", strerror(errno));
       }
     }
     else {
       printf("Board is incomplete!\n");
+    }
+    sb.sem_op = 1;
+    semop(game_semd, &sb, 1);
+    if (errno != 0){
+      printf("%s\n", strerror(errno));
     }
   }
   else {
