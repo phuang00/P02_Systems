@@ -64,3 +64,6 @@ Fixed segmentation faults by fixing code to access shared memory, fixed errors i
 
 jackieL -- 2020-01-19 23:41
 Fixed error with exiting process and releasing semaphores, fixed error with making sure both players join the game before game starts
+
+jackieL -- 2020-01-20 00:29
+brought README into alignment with final specifications
