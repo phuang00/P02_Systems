@@ -4,13 +4,13 @@ struct sembuf sb;
 int shmkey;
 int semkey;
 
-// union semun {
-//   int              val;    /* Value for SETVAL */
-//   struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-//   unsigned short  *array;  /* Array for GETALL, SETALL */
-//   struct seminfo  *__buf;  /* Buffer for IPC_INFO
-//                               (Linux-specific) */
-// };
+union semun {
+  int              val;    /* Value for SETVAL */
+  struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+  unsigned short  *array;  /* Array for GETALL, SETALL */
+  struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                              (Linux-specific) */
+};
 
 static void sighandler(int signo){
   printf("Exiting game...\n");
@@ -111,11 +111,10 @@ void boat_input(int key){
   int i;
   display_board(key);
   for (i = 1; i <= 5; i++){
-    printf("\nNow placing Boat %d...\n", i);
+    printf("\nNow placing Boat %d; please input a column (char), a row (int), and an orientation (l, r, u, d):\n", i);
     row = 0; //reset values
     column = 0;
     orient = 0;
-    printf("Please input a column (char), a row (int), and an orientation (l, r, u, d):\n");
     fgets(input, 20, stdin);
     *strchr(input, '\n') = 0;
     sscanf(input, "%c %d %c", &column, &row, &orient);

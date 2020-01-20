@@ -239,8 +239,7 @@ int main(int argc, char const *argv[]) {
           printf("%s\n", strerror(errno));
         }
         display_boards(you, them);
-        printf("\nNow placing your shots on the opponent's board...\n");
-        printf("Please input a column (char) and a row (int):\n");
+        printf("\nNow placing your shots on the opponent's board; please input a column (char) and a row (int):\n");
         fgets(input, 20, stdin);
         *strchr(input, '\n') = 0;
         sscanf(input, "%c %d", &column, &row);
