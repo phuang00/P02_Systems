@@ -58,3 +58,6 @@ Fixed error in fire function
 
 jackieL -- 2020-01-15 20:34
 Wrote code to remove semaphores and shared memory, fixed bugs in firing functions, renamed rows in board
+
+jackieL -- 2020-01-19 21:34
+Fixed segmentation faults by fixing code to access shared memory, fixed errors in fire and win functions
