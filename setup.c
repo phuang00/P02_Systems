@@ -104,7 +104,7 @@ int place_boat(int boat, int row, char column, char orient, int key){
   return 1;
 }
 
-void boat_input(key){
+void boat_input(int key){
   int row;
   char input[20];
   char column, orient;
