@@ -51,7 +51,12 @@ int fire(int key, int row, char column){ //returns 1 is successfully hit, 0 if n
   } else {
     ship_exists = 0;
   }
-  strncpy(&copy[row * 11 + column], "X", 1); //cannot do this
+  if (ship_exists){
+    strncpy(&copy[row * 11 + column], "X", 1); //cannot do this
+  }
+  else{
+    strncpy(&copy[row * 11 + column], "O", 1); //cannot do this
+  }
   data = strcpy(data, copy);
   shmdt(data);
   return ship_exists;
@@ -73,7 +78,7 @@ int dup_coord(int row, char column, int key) { //1 if coordinate entered has bee
     printf("me?????%s\n", strerror(errno));
   }
   printf("thing id: %c\n", (*(data + row * 11 + column)));
-  int been_hit = (*(data + row * 11 + column) == 'X');
+  int been_hit = (*(data + row * 11 + column) == 'X') || (*(data + row * 11 + column) == 'O');
   printf("stuffffshofdof\n");
   shmdt(data);
   return been_hit;
@@ -157,7 +162,7 @@ void display_boards(int you, int them){
       int j;
       for (j = 0; j < 11; j++) {
         char temp = *(data + i * 11 + j);
-        if (temp == 'X' || temp == '\n'){
+        if (temp == 'X' || temp == '\n' || temp == 'O'){
           printf(" %c", temp);
         } else{
           printf(" -");
@@ -207,7 +212,7 @@ int main(int argc, char const *argv[]) {
         int row;
         char input[20];
         char column;
-        while (!win(you)){
+        while (!win(you) && !win(them)){
           printf("Waiting for your turn...\n");
           int turn = semget(TURN_KEY, 1, 0);
           if (turn == -1) {
@@ -243,6 +248,12 @@ int main(int argc, char const *argv[]) {
           if (errno != 0){
             printf("%s\n", strerror(errno));
           }
+        }
+        if (win(you)){
+          printf("You won!\n");
+        }
+        else {
+          printf("You lost!\n");
         }
       }
     }

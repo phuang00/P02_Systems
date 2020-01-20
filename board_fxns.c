@@ -49,6 +49,7 @@ int board_filled(int key){ //check if board is filled or not
   int three = 0;
   int four = 0;
   int five = 0;
+  int hit = 0;
   int i;
   for (i = 0; i < strlen(data); i++){
     if (data[i] == '1') one++;
@@ -56,8 +57,11 @@ int board_filled(int key){ //check if board is filled or not
     if (data[i] == '3') three++;
     if (data[i] == '4') four++;
     if (data[i] == '5') five++;
+    if (data[i] == 'X') hit++;
   }
   shmdt(data);
   if (one == 1 && two == 2 && three == 3 & four == 4 && five == 5) return 1;
+  if (hit == 15) return 1;
+
   return 0;
 }
