@@ -86,3 +86,6 @@ Updated helpMenu
 
 yifanW -- 2020-01-20 01:21
 Edited print statements and uncommented semun struct
+
+peihuaH -- 2020-01-20 22:28
+Fixed issue where only setting up a board and trying to play as the same player returns segfault.

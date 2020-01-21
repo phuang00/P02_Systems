@@ -217,7 +217,7 @@ int main(int argc, char const *argv[]) {
     }
     int val;
     printf("Entered game successfully!\n");
-    if (board_filled(you)){
+    if (board_filled(you) && board_filled(them)){
       int row;
       char input[20];
       char column;
